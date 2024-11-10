@@ -17,7 +17,8 @@
     "paths": {
       "@expense-tracker/components-library": [
         "libs/components-library/src/index.ts"
-      ]
+      ],
+      "@expense-tracker/shared-types": ["libs/shared-types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
