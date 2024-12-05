@@ -1,5 +1,8 @@
-const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { join } = require('path')
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin')
 
 module.exports = {
   output: {
@@ -23,4 +26,4 @@ module.exports = {
       target: 'http://localhost:3333',
     }
   }
-};
+}

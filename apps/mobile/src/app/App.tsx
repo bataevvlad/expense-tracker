@@ -1,7 +1,9 @@
-import { Layout } from '@expense-tracker/components-library';
+import React from 'react'
 
-export const App = () => {
-  return <Layout/>;
-};
+import { MainProvider } from './providers/MainProvider'
 
-export default App;
+const App = () => {
+  return <MainProvider/>
+}
+
+export default App
