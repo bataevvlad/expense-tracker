@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
-  Animated,
-  Easing,
   StyleProp,
   StyleSheet,
   Text,
@@ -11,6 +9,13 @@ import {
   ViewStyle,
   useWindowDimensions
 } from 'react-native'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  withSpring,
+  WithSpringConfig,
+} from 'react-native-reanimated'
 
 export interface SwitchItem<ValueType> {
   label: string;
@@ -30,40 +35,42 @@ export interface MultipleSwitcherProps<ValueType> {
   activeTextStyle?: StyleProp<TextStyle>;
 }
 
+const springConfig: WithSpringConfig = {
+  damping: 15,
+  mass: 1,
+  stiffness: 120,
+  overshootClamping: false,
+  restSpeedThreshold: 0.001,
+  restDisplacementThreshold: 0.001,
+}
+
 export const MultipleSwitcher = <ValueType,>(props: MultipleSwitcherProps<ValueType>) => {
   type SpecificSwitchItem = SwitchItem<ValueType>;
 
   const { width } = useWindowDimensions()
-  const [items, setItems] = useState(props.items)
+  const [items] = useState(props.items)
   const [elements, setElements] = useState<{ id: SpecificSwitchItem['value']; value: number }[]>([])
   const [active, setActive] = useState(props.value)
-  const animatedValue = useRef(new Animated.Value(0)).current
-  const opacityValue = useRef(new Animated.Value(0)).current
 
-  useEffect(() => {
-    setItems(props.items)
-    setElements([])
-  }, [width])
+  const translateX = useSharedValue(-width)
+  const opacity = useSharedValue(0)
 
   useEffect(() => {
     if (elements.length === props.items.length) {
       const position = elements.find((el) => el.id === props.value)
-      Animated.timing(animatedValue, {
-        toValue: position ? position.value : -width,
-        duration: 0,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start(() => {
-        if (!position) return
-        Animated.timing(opacityValue, {
-          toValue: 1,
-          duration: 100,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }).start()
-      })
+      if (position) {
+        translateX.value = position.value
+        opacity.value = withTiming(1, { duration: 100 })
+      }
     }
   }, [elements])
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+      opacity: opacity.value,
+    }
+  })
 
   const getContainerStyle = () => {
     return [
@@ -75,59 +82,41 @@ export const MultipleSwitcher = <ValueType,>(props: MultipleSwitcherProps<ValueT
     ]
   }
 
-  const getSliderStyle = (): Animated.WithAnimatedObject<ViewStyle> => {
+  const getSliderStyle = () => {
     return [
       styles.slider,
-      { width: `${100 / props.items.length}%` },
-      { transform: [{ translateX: animatedValue }] },
-      { opacity: opacityValue },
-      props.sliderStyle ? props.sliderStyle : {},
+      { width: `${100 / props.items.length}%` as `${number}%` },
+      props.sliderStyle,
       props.disabled ? styles.sliderDisabled : {},
-    ] as Animated.WithAnimatedObject<ViewStyle>
+    ]
   }
 
   const startAnimation = (newVal: ValueType) => {
     const position = elements.find((el) => el.id === newVal)
-    if (!position) {
-      return
+    if (!position) return
+
+    translateX.value = withSpring(position.value, springConfig)
+    setActive(newVal)
+
+    const oldPosition = elements.find((el) => el.id === props.value)
+    if (!oldPosition) {
+      opacity.value = withTiming(1, { duration: 100 })
     }
-    Animated.timing(animatedValue, {
-      toValue: position.value,
-      duration: 200,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start(() => {
-      setActive(newVal)
 
-      const oldPosition = elements.find(function (el) {
-        return el.id === props.value
-      })
-
-      if (oldPosition) return
-
-      Animated.timing(opacityValue, {
-        toValue: 1,
-        duration: 100,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }).start()
-    })
     props.onChange(newVal)
   }
 
   return (
     <View style={getContainerStyle()}>
-      <Animated.View style={getSliderStyle()} />
+      <Animated.View style={[getSliderStyle(), animatedStyle]} />
       {items.map((item: SpecificSwitchItem) => (
         <TouchableOpacity
-          activeOpacity={0.7}
+          activeOpacity={1}
           style={[
             styles.item,
             { width: `${100 / props.items.length}%` },
           ]}
-          onPress={() => {
-            startAnimation(item.value)
-          }}
+          onPress={() => startAnimation(item.value)}
           key={item.value as string}
           onLayout={(e) =>
             setElements([
@@ -196,7 +185,6 @@ const styles = StyleSheet.create({
   sliderDisabled: {
     backgroundColor: selectedColorDisabled,
   },
-
   mediumHeight: {
     height: 40,
   },

@@ -1,7 +1,7 @@
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
-  BottomSheetScrollView,
+  BottomSheetView,
 } from '@gorhom/bottom-sheet'
 import type { SNAP_POINT_TYPE } from '@gorhom/bottom-sheet/lib/typescript/constants'
 import React, { forwardRef, ReactNode, useCallback } from 'react'
@@ -51,21 +51,24 @@ export const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>((
   forwardRef
 ) => {
 
-  const backDrop = useCallback((backdropProps: BottomSheetBackdropProps): JSX.Element => (
-    <BottomSheetBackdrop
-      { ...backdropProps }
-      pressBehavior={'close'}
-      enableTouchThrough={ true }
-      disappearsOnIndex={-1}
-      appearsOnIndex={1}
-      opacity={OVERLAY_OPACITY}
-      style={styles.backDrop}
-    />
-  ), [])
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        pressBehavior="close"
+        enableTouchThrough
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={OVERLAY_OPACITY}
+        style={styles.backDrop}
+      />
+    ),
+    []
+  )
 
   return (
     <BottomSheet
-      backdropComponent={backDrop}
+      backdropComponent={renderBackdrop}
       backgroundStyle={backgroundStyle}
       style={style}
       detached={detached}
@@ -75,9 +78,12 @@ export const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>((
       onClose={onClose}
       bottomInset={bottomInset}
     >
-      <BottomSheetScrollView enableFooterMarginAdjustment={true}>
+      <BottomSheetView
+        style={{ flex: 1 }}
+        enableFooterMarginAdjustment={true}
+      >
         {children}
-      </BottomSheetScrollView>
+      </BottomSheetView>
     </BottomSheet>
   )
 })
@@ -86,6 +92,11 @@ BottomSheetComponent.displayName = 'BottomSheetComponent'
 
 const styles = StyleSheet.create({
   backDrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: 'rgba(56,49,46,0.71)',
   },
 })

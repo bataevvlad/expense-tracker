@@ -1,39 +1,47 @@
 import { PlatformPressable } from '@react-navigation/elements'
-import React, { useRef } from 'react'
-import { Animated, ViewStyle } from 'react-native'
+import React from 'react'
+import { ViewStyle } from 'react-native'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated'
 
 interface BounceButtonProps {
-  children: React.ReactNode,
-  onPress: () => void,
-  isFocused: boolean,
-  style: ViewStyle,
+  children: React.ReactNode
+  onPress: () => void
+  isFocused: boolean
+  style: ViewStyle
 }
 
-export const BounceButton = (
-  {
-    children,
-    onPress,
-    isFocused,
-    style,
-  }: BounceButtonProps) => {
-  const scaleValue = useRef(new Animated.Value(1)).current
+export const BounceButton = ({
+  children,
+  onPress,
+  isFocused,
+  style,
+}: BounceButtonProps) => {
+  const scale = useSharedValue(1)
 
   const handlePressIn = () => {
-    Animated.spring(scaleValue, {
-      toValue: 0.85,
-      tension: 75,
-      useNativeDriver: true,
-    }).start()
+    scale.value = withSpring(0.85, {
+      damping: 8,
+      mass: 0.5,
+    })
   }
 
   const handlePressOut = () => {
-    Animated.spring(scaleValue, {
-      toValue: 1,
-      tension: 75,
-      useNativeDriver: true,
-    }).start()
+    scale.value = withSpring(1, {
+      damping: 8,
+      mass: 0.5,
+    })
     onPress?.()
   }
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }]
+    }
+  })
 
   return (
     <PlatformPressable
@@ -42,7 +50,7 @@ export const BounceButton = (
       style={style}
       accessibilityState={isFocused ? { selected: true } : {}}
     >
-      <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+      <Animated.View style={animatedStyle}>
         {children}
       </Animated.View>
     </PlatformPressable>

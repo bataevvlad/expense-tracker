@@ -1,12 +1,18 @@
 import { BottomTabDescriptorMap } from '@react-navigation/bottom-tabs/lib/typescript/module/src/types'
-import { PlatformPressable } from '@react-navigation/elements'
 import { ParamListBase, TabNavigationState } from '@react-navigation/native'
-import { IconCashBanknoteFilled, IconSettingsFilled } from '@tabler/icons-react-native'
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { EdgeInsets } from 'react-native-safe-area-context'
+import React, { memo, useCallback, useMemo } from 'react'
+import { StyleSheet } from 'react-native'
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+  interpolate,
+  useSharedValue,
+  useAnimatedReaction
+} from 'react-native-reanimated'
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { BounceButton } from '../BounceButton/BounceButton'
+import { CentralButton } from './tabBarComponents/CentralButton'
+import { TabButton } from './tabBarComponents/TabButton'
 
 export enum TabBarScreen {
   Main = 'Main',
@@ -19,119 +25,130 @@ export interface TabBarProps {
   descriptors: BottomTabDescriptorMap;
   navigation: any;
   insets: EdgeInsets;
+  isVisible?: boolean;
 }
 
-export const CustomTabBar = (
-  {
-    state,
-    navigation
-  }: TabBarProps) => {
-  return (
-    <View style={styles.customTabBarContainer}>
-      {state.routes.map((route, index) => {
-        const isFocused = state.index === index
+const springConfig = {
+  damping: 50,
+  mass: 1,
+  stiffness: 1000,
+}
 
-        const doCustomAction = (screenName: string): boolean => {
-          switch (screenName) {
-            case TabBarScreen.Central:
-              navigation.navigate('AddExpenseScreen')
-              return true
-          }
-          return false
-        }
+export const CustomTabBar = memo(({
+  state,
+  navigation,
+  isVisible = true
+}: TabBarProps) => {
+  const { bottom: bottomInset } = useSafeAreaInsets()
+  const translateY = useSharedValue(0)
+  const scale = useSharedValue(1)
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          })
-
-          if (!doCustomAction(route.name)) {
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate({
-                name: route.name,
-                merge: true
-              })
-            }
-          }
-        }
-
-        if (route.name === TabBarScreen.Central) {
-          return (
-            <PlatformPressable
-              key={route.name}
-              onPress={onPress}
-              style={styles.centralButtonContainer}
-            >
-              <View style={styles.centralButton}>
-                <Text style={styles.centralButtonText}>+</Text>
-              </View>
-            </PlatformPressable>
-          )
-        } else {
-          return (
-            <BounceButton
-              key={route.name}
-              onPress={onPress}
-              isFocused={isFocused}
-              style={styles.tabButton}
-            >
-              {route.name === TabBarScreen.Main ? (
-                <IconCashBanknoteFilled
-                  size={35}
-                  color="#333"
-                  fill="#333"
-                  opacity={isFocused ? 1 : 0.5}
-                />
-              ) : (
-                <IconSettingsFilled
-                  size={35}
-                  color="#333"
-                  fill="#333"
-                  opacity={isFocused ? 1 : 0.5}
-                />
-              )}
-            </BounceButton>
-          )
-        }
-      })}
-    </View>
+  useAnimatedReaction(
+    () => isVisible,
+    (visible) => {
+      translateY.value = withSpring(
+        visible ? 0 : 100,
+        springConfig
+      )
+      scale.value = withSpring(
+        visible ? 1 : 0.95,
+        springConfig
+      )
+    },
+    [isVisible]
   )
-}
+
+  const animatedStyle = useAnimatedStyle(
+    () => {
+      const opacity = interpolate(
+        translateY.value,
+        [0, 50, 100],
+        [1, 0.8, 0],
+        'clamp'
+      )
+
+      return {
+        transform: [
+          { translateY: translateY.value },
+          { scale: scale.value }
+        ],
+        opacity
+      }
+    })
+
+  const doCustomAction = useCallback((screenName: string): boolean => {
+    if (screenName === TabBarScreen.Central) {
+      navigation.navigate('AddExpenseScreen')
+      return true
+    }
+    return false
+  }, [navigation])
+
+  const renderTabs = useMemo(() =>
+    state.routes.map((route, index) => {
+      const isFocused = state.index === index
+
+      const onPress = () => {
+        const event = navigation.emit({
+          type: 'tabPress',
+          target: route.key,
+          canPreventDefault: true,
+        })
+
+        if (!doCustomAction(route.name)) {
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate({
+              name: route.name,
+              merge: true
+            })
+          }
+        }
+      }
+
+      if (route.name === TabBarScreen.Central) {
+        return (
+          <CentralButton
+            key={route.name}
+            onPress={onPress}
+          />
+        )
+      }
+
+      return (
+        <TabButton
+          key={route.name}
+          route={route}
+          isFocused={isFocused}
+          onPress={onPress}
+        />
+      )
+    }), [state.routes, state.index, navigation, doCustomAction])
+
+  return (
+    <Animated.View
+      style={[
+        styles.customTabBarContainer,
+        {
+          marginBottom: bottomInset * 0.3,
+        },
+        animatedStyle
+      ]}
+    >
+      {renderTabs}
+    </Animated.View>
+  )
+})
+
+CustomTabBar.displayName = 'CustomTabBar'
 
 const styles = StyleSheet.create({
   customTabBarContainer: {
     flexDirection: 'row',
-    height: 55,
-    marginTop: 11,
-    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  tabButton: {
-    flex: 1,
-    paddingBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centralButtonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  centralButton: {
-    width: 60,
-    height: 40,
-    borderRadius: 14,
-    backgroundColor: '#333',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centralButtonText: {
-    paddingBottom: 2,
-    fontSize: 24,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  }
 })

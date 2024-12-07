@@ -1,9 +1,9 @@
 export const rootScreenOptions = { cardStyle: { backgroundColor: '#FFF', paddingBottom: 11, } }
 
 export const fullScreenModalGroupOptions: any = {
-  headerShown: false,
+  headerShown: true,
   presentation: 'transparentModal',
-  cardStyle: { backgroundColor: '#FFF' },
+  // cardStyle: { backgroundColor: '#FFF' },
   transitionSpec: {
     open: {
       animation: 'timing',

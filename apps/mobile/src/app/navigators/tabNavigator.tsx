@@ -23,7 +23,12 @@ export const TabNavigator = () => {
   return (
     <Tab.Navigator
       id={undefined}
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={(props) => (
+        <CustomTabBar
+          isVisible={true}
+          {...props}
+        />
+      )}
       screenOptions={{
         tabBarShowLabel: false,
         headerShown: false
@@ -49,6 +54,7 @@ export const TabNavigator = () => {
 const styles = StyleSheet.create({
   centered: {
     flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
   }

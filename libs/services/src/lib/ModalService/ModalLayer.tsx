@@ -1,86 +1,96 @@
 import { ModalAnimationOptions, ModalAnimationType } from '@expense-tracker/shared-types'
-import React from 'react'
-import { Animated, Dimensions, Easing, StyleSheet, ViewProps } from 'react-native'
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useMemo, useCallback } from 'react'
+import { Dimensions, StyleSheet } from 'react-native'
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+  Easing, AnimationCallback,
+} from 'react-native-reanimated'
 
 const { height } = Dimensions.get('window')
+
+const DEFAULT_ANIMATION_CONFIG = {
+  duration: 400,
+  easing: Easing.out(Easing.cubic),
+} as const
 
 interface IProps {
   children: React.ReactElement<any>;
   animationOptions?: ModalAnimationOptions;
-  backgroundRef?: React.ReactElement<any>
+  backgroundRef?: React.ReactElement<any>;
 }
 
-export class ModalLayer extends React.Component<IProps> {
-  private readonly animatedValue: Animated.Value
-  private readonly animatedOpacity: Animated.Value
+export interface ModalLayerRef {
+  animateClosing: () => Promise<boolean>;
+}
 
-  constructor(props: IProps) {
-    super(props)
-    this.animatedValue = new Animated.Value(0)
-    this.animatedOpacity = new Animated.Value(1)
-  }
+export const ModalLayer = forwardRef<ModalLayerRef, IProps>((props, ref) => {
+  const { children, backgroundRef, animationOptions } = props
 
-  componentDidMount() {
-    if (this.props.animationOptions?.isOpenAnimationEnabled) {
-      this.animateAppearance()
+  const translateY = useSharedValue(0)
+  const opacity = useSharedValue(1)
+
+  const closingResolverRef = useRef<((value: boolean) => void) | null>(null)
+
+  const animateAppearance = useCallback(() => {
+    if (!animationOptions?.isOpenAnimationEnabled) {
+      return
     }
-  }
 
-  public animateAppearance(): void {
-    switch (this.props.animationOptions?.animationType) {
-      case ModalAnimationType.Fade:
-        this.animatedOpacity.setValue(0)
-        Animated.timing(this.animatedOpacity, {
-          toValue: 1,
-          easing: Easing.out(Easing.cubic),
-          duration: 400,
-          useNativeDriver: true,
-        }).start()
-        break
-      default:
-        this.animatedValue.setValue(height)
-        Animated.timing(this.animatedValue, {
-          toValue: 0,
-          easing: Easing.out(Easing.cubic),
-          duration: 400,
-          useNativeDriver: true,
-        }).start()
+    if (animationOptions?.animationType === ModalAnimationType.Fade) {
+      opacity.value = 0
+      opacity.value = withTiming(1, DEFAULT_ANIMATION_CONFIG)
+    } else {
+      translateY.value = height
+      translateY.value = withTiming(0, DEFAULT_ANIMATION_CONFIG)
     }
-  }
+  }, [animationOptions?.isOpenAnimationEnabled, animationOptions?.animationType, opacity, translateY])
 
-  public animateClosing = (): Promise<boolean> => {
-    return new Promise((res) => {
-      switch (this.props.animationOptions?.animationType) {
-        case ModalAnimationType.Fade:
-          this.animatedOpacity.setValue(1)
-          Animated.timing(this.animatedOpacity, {
-            toValue: 0,
-            easing: Easing.out(Easing.cubic),
-            duration: 400,
-            useNativeDriver: true,
-          }).start(({ finished }) => (res(finished)))
-          break
-        default:
-          this.animatedValue.setValue(0)
-          Animated.timing(this.animatedValue, {
-            toValue: height,
-            easing: Easing.out(Easing.cubic),
-            duration: 400,
-            useNativeDriver: true,
-          }).start(({ finished }) => (res(finished)))
+  const animateClosing = useCallback((): Promise<boolean> => {
+    return new Promise((resolve) => {
+      closingResolverRef.current = resolve
+
+      const finishCallback: AnimationCallback = (finished?: boolean) => {
+        if (closingResolverRef.current) {
+          runOnJS(closingResolverRef.current)(!!finished)
+        }
+      }
+
+      if (animationOptions?.animationType === ModalAnimationType.Fade) {
+        opacity.value = withTiming(0, DEFAULT_ANIMATION_CONFIG, finishCallback)
+      } else {
+        translateY.value = withTiming(height, DEFAULT_ANIMATION_CONFIG, finishCallback)
       }
     })
-  }
+  }, [animationOptions?.animationType, opacity, translateY])
 
-  public render(): React.ReactElement<ViewProps> | null {
-    const { children, backgroundRef } = this.props
-    return (
-      <Animated.View
-        style={{ ...StyleSheet.absoluteFillObject,  transform: [{ translateY: this.animatedValue }], opacity: this.animatedOpacity  }}
-        pointerEvents='box-none'
-      >
-        { React.cloneElement(children, { backgroundRef }) }
-      </Animated.View>
-    )
-  }
-}
+  useImperativeHandle(ref, () => ({
+    animateClosing
+  }), [animateClosing])
+
+  useEffect(() => {
+    animateAppearance()
+  }, [animateAppearance])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value
+  }), [])
+
+  const memoizedChild = useMemo(() => (
+    React.cloneElement(children, { backgroundRef })
+  ), [children, backgroundRef])
+
+  return (
+    <Animated.View
+      style={[StyleSheet.absoluteFillObject, animatedStyle]}
+      pointerEvents='box-none'
+    >
+      {memoizedChild}
+    </Animated.View>
+  )
+})
+
+ModalLayer.displayName = 'ModalLayer'

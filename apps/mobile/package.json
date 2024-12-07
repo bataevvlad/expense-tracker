@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@react-native-community/datetimepicker": "*",
     "@gorhom/bottom-sheet": "*",
     "@shopify/flash-list": "*",
-    "@marceloterreiro/flash-calendar": "*",
     "react-native-reanimated": "*",
     "react-native-gesture-handler": "*",
     "@tabler/icons-react-native": "*",

@@ -2,7 +2,7 @@ import { MultipleSwitcher } from '@expense-tracker/components-library'
 import { IconX, IconBackspace, IconCheck } from '@tabler/icons-react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ModalScreensHelper } from '../helpers/modal-helper'
 
@@ -12,6 +12,7 @@ const getSwitchItemsRegister = [
 ]
 
 export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = false }: any) => {
+  const { bottom } = useSafeAreaInsets()
   const [amount, setAmount] = useState<string>('0')
   const [expenseIncome, setExpenseIncome] = useState<string | null>('Expense')
   const buttonRef = useRef<TouchableOpacity>(null)
@@ -60,7 +61,8 @@ export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = f
   }
 
   const onCalendarPress = () => {
-    ModalScreensHelper.onCalendarPress()
+    ModalScreensHelper.onCalendarPress(bottom)
+    // ModalScreensHelper.dialog()
   }
 
   return (
@@ -79,6 +81,7 @@ export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = f
             style={{ margin: 7 }}
           />
         </TouchableOpacity>
+
         {getSwitchItemsRegister && getSwitchItemsRegister.length > 1 && (
           <View style={styles.switcherContainer}>
             <MultipleSwitcher

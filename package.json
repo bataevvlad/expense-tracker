@@ -5,19 +5,22 @@
   "scripts": {
     "mobile:start": "nx start mobile --reset-cache",
     "mobile:run:android": "nx run-android mobile",
-    "mobile:run:ios": "nx run-ios mobile --simulator=\"iPhone 15 Pro\"",
-    "mobile:pods": "nx run mobile:pod-install",
+    "mobile:run:ios": "nx run-ios mobile --simulator=\"iPhone 16 Pro\"",
+    "mobile:device:debug": "nx run-ios mobile --device=\"iPhoneVlad\" --configuration Debug",
+    "mobile:device:release": "nx run-ios mobile --device=\"iPhoneVlad\" --configuration Release",
+    "mobile:pods": "nx reset --verbose && nx run mobile:pod-install",
     "components:create": "scripts/component-creator.sh",
     "services:create": "scripts/service-creator.sh",
     "api:start": "nx serve api",
     "migration:start": "nx migrate latest",
     "migration:apply": "nx migrate --run-migrations && npm install",
-    "lint:all": "npx nx run-many --target=lint --all"
+    "lint:all": "nx run-many --target=lint --all"
   },
   "private": true,
   "dependencies": {
     "@gorhom/bottom-sheet": "5.0.6",
-    "@marceloterreiro/flash-calendar": "^1.2.0",
+    "@react-native-community/datetimepicker": "^8.2.0",
+    "@react-native-picker/picker": "^2.10.2",
     "@react-navigation/bottom-tabs": "^7.0.1",
     "@react-navigation/elements": "^2.0.0",
     "@react-navigation/native": "^7.0.0",

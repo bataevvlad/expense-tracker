@@ -11,6 +11,13 @@
       "options": {
         "command": "cd apps/mobile/ios && pod install"
       }
+    },
+    "build-ios": {
+      "executor": "nx:run-commands",
+      "options": {
+        "device": "iPhoneVlad"
+      }
     }
   }
 }
+
