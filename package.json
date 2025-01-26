@@ -1,6 +1,6 @@
 {
   "name": "@expense-tracker/source",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "license": "MIT",
   "scripts": {
     "mobile:start": "nx start mobile --reset-cache",
@@ -15,7 +15,12 @@
     "migration:start": "nx migrate latest",
     "migration:apply": "nx migrate --run-migrations && npm install",
     "lint:all": "nx run-many --target=lint --all",
-    "gen:lib": "npx nx g @nx/react-native:lib libs/shared-lib"
+    "gen:lib": "npx nx g @nx/react-native:lib libs/shared-lib",
+    "changeset": "npx changeset",
+    "version-app": "npx changeset version",
+    "release:ci": "npm run version-app && git add . && git commit -m 'chore: bump version' && git push",
+    "prepare-release": "npx changeset status",
+    "ci:install": "npm ci"
   },
   "private": true,
   "dependencies": {
@@ -42,6 +47,8 @@
   "devDependencies": {
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
+    "@changesets/cli": "^2.27.12",
+    "husky": "^8.0.3",
     "@eslint/js": "^9.8.0",
     "@nx/devkit": "20.0.12",
     "@nx/eslint": "20.0.12",
