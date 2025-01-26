@@ -3,6 +3,8 @@ import { ViewStyle } from 'react-native'
 
 export enum MODAL_KEYS {
   CALENDAR = 'CALENDAR',
+  EDIT_CATEGORIES = 'EDIT_CATEGORIES',
+  EDIT_CATEGORY = 'EDIT_CATEGORY',
 }
 
 export enum ModalAnimationType {
@@ -36,6 +38,7 @@ export interface ModalItem {
   ref: RefObject<any>;
   options?: ModalOptions;
   isClosed?: boolean;
+  isClosing?: boolean;
   backgroundStyle?: ViewStyle | undefined;
 }
 
@@ -49,5 +52,6 @@ export enum ModalServiceResultStatus {
   ModalAlreadyOpened = 'ModalAlreadyOpened',
   NotInitialized = 'NotInitialized',
   Ready = 'Ready',
+  Error = 'Error',
 }
 

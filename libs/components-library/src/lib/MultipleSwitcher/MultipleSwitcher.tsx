@@ -151,7 +151,7 @@ const borderWidth = 2
 
 const styles = StyleSheet.create({
   container: {
-    width: '60%',
+    // width: '60%',
     alignSelf: 'center',
     borderColor: selectedColor,
     borderWidth,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: 42,
+    // height: 42,
     backgroundColor: backgroundColor,
     overflow: 'hidden',
   },

@@ -1,5 +1,6 @@
 import { BottomSheetComponent } from '@expense-tracker/components-library'
 import { ModalItem, ModalOptions } from '@expense-tracker/shared-types'
+import { waitForKeyboardToClose, waitForNextFrame } from '@expense-tracker/shared-utils'
 import * as React from 'react'
 import { createRef, ReactElement } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
@@ -100,10 +101,24 @@ export class ModalPanel extends React.Component<ModalPanelProps> {
     return !!this.state.items.find(x => x.key === key)
   }
 
-  private onBottomSheetClose = (item: ModalItem, index: number) => {
+  private onBottomSheetClose = async (item: ModalItem, index: number) => {
+    await this.handleKeyboard(item)
+
     if (!item.isClosed && index <= 0 && item.options?.$resolve) {
       item.options.$resolve?.(null)
       item.options.$resolve = undefined
+    }
+  }
+
+  private onChange = async (index: number): Promise<void> => {
+    if (index < 0) {
+      const currentItem = this.state.items[this.state.items.length - 1]
+      if (currentItem) {
+        currentItem.ref.current?.close?.()
+        this.setState({
+          items: this.state.items.filter(x => x !== currentItem)
+        })
+      }
     }
   }
 
@@ -131,6 +146,7 @@ export class ModalPanel extends React.Component<ModalPanelProps> {
         key={item.key}
         ref={item.ref}
         backgroundStyle={item.backgroundStyle}
+        onChange={this.onChange}
         onClose={() => this.onBottomSheetClose(item, 0)}
         {...item.options?.modalComponentParams}
       >
@@ -165,6 +181,13 @@ export class ModalPanel extends React.Component<ModalPanelProps> {
         </SafeAreaView>
       </>
     )
+  }
+
+  private handleKeyboard = async (item: ModalItem) => {
+    if (item.options?.modalComponentParams?.isKeyboardUsed) {
+      await waitForKeyboardToClose()
+      await waitForNextFrame()
+    }
   }
 }
 

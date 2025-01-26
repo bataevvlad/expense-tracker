@@ -14,7 +14,8 @@
     "api:start": "nx serve api",
     "migration:start": "nx migrate latest",
     "migration:apply": "nx migrate --run-migrations && npm install",
-    "lint:all": "nx run-many --target=lint --all"
+    "lint:all": "nx run-many --target=lint --all",
+    "gen:lib": "npx nx g @nx/react-native:lib libs/shared-lib"
   },
   "private": true,
   "dependencies": {

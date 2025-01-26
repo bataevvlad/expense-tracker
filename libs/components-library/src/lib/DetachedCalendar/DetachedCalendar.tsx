@@ -1,5 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
 type DateTimePickerEvent = Parameters<NonNullable<React.ComponentProps<typeof DateTimePicker>['onChange']>>[0];
@@ -9,34 +9,55 @@ const PICKER_CONFIG = {
   accentColor: 'black',
   themeVariant: 'light' as const,
   display: 'inline' as const,
-}
+} as const
 
 export const DetachedCalendar: React.FC = () => {
   const [date, setDate] = useState<Date>(new Date())
 
   const handleDateChange: DateChangeHandler = useCallback((event, selectedDate) => {
     if (selectedDate) {
-      setDate(selectedDate)
+      setDate(prevDate => {
+        const newDate = new Date(selectedDate)
+        newDate.setHours(prevDate.getHours(), prevDate.getMinutes())
+        return newDate
+      })
     }
   }, [])
 
+  const handleTimeChange: DateChangeHandler = useCallback((event, selectedDate) => {
+    if (selectedDate) {
+      setDate(prevDate => {
+        const newDate = new Date(prevDate)
+        newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes())
+        return newDate
+      })
+    }
+  }, [])
+
+  const datePicker = useMemo(() => (
+    <DateTimePicker
+      {...PICKER_CONFIG}
+      mode="date"
+      onChange={handleDateChange}
+      value={date}
+    />
+  ), [date, handleDateChange])
+
+  const timePicker = useMemo(() => (
+    <DateTimePicker
+      {...PICKER_CONFIG}
+      mode="time"
+      onChange={handleTimeChange}
+      value={date}
+    />
+  ), [date, handleTimeChange])
+
   return (
     <View style={styles.container}>
-      <DateTimePicker
-        {...PICKER_CONFIG}
-        mode="date"
-        onChange={handleDateChange}
-        value={date}
-      />
-
+      {datePicker}
       <View style={styles.timeContainer}>
         <Text style={styles.timeLabel}>Time</Text>
-        <DateTimePicker
-          {...PICKER_CONFIG}
-          mode="time"
-          onChange={handleDateChange}
-          value={date}
-        />
+        {timePicker}
       </View>
     </View>
   )

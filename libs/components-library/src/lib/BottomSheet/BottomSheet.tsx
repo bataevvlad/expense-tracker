@@ -1,3 +1,4 @@
+import { waitForKeyboardToClose, waitForNextFrame } from '@expense-tracker/shared-utils'
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -36,6 +37,7 @@ export interface BottomSheetProps {
     >
   >;
   detached?: boolean;
+  isKeyboardUsed?: boolean;
 }
 
 export const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>((
@@ -47,14 +49,22 @@ export const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>((
     backgroundStyle,
     bottomInset,
     detached = false,
+    isKeyboardUsed = false
   },
   forwardRef
 ) => {
+  const onBottomSheetClose = async () => {
+    if (isKeyboardUsed) {
+      await waitForKeyboardToClose()
+      await waitForNextFrame()
+    }
+  }
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
         {...props}
+        onPress={onBottomSheetClose}
         pressBehavior="close"
         enableTouchThrough
         disappearsOnIndex={-1}
@@ -68,6 +78,7 @@ export const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>((
 
   return (
     <BottomSheet
+      keyboardBehavior="interactive"
       backdropComponent={renderBackdrop}
       backgroundStyle={backgroundStyle}
       style={style}

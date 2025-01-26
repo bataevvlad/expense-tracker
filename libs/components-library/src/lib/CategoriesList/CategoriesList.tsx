@@ -1,5 +1,6 @@
+import { FlashList } from '@shopify/flash-list'
 import React from 'react'
-import { View, FlatList, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 
 import { CategoriesItem } from '../CategoriesItem/CategoriesItem'
 
@@ -23,7 +24,8 @@ const categories: Category[] = [
 export const CategoriesList: React.FC<CategoryListProps> = ({ onSelectCategory }) => {
   return (
     <View style={styles.listContainer}>
-      <FlatList
+      <FlashList
+        estimatedItemSize={54}
         showsVerticalScrollIndicator={false}
         data={categories}
         keyExtractor={(item) => item.id}

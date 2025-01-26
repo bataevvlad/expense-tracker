@@ -8,6 +8,8 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native'
 
+import { ModalScreensHelper } from '../helpers/modal-helper'
+
 interface ButtonPosition {
   x: number;
   y: number;
@@ -48,7 +50,9 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({ route, navig
     left = screenWidth - listWidth
   }
 
-  const handleSelectCategory = (category: { id: string; name: string }) => {
+  const handleSelectCategory = (
+    // category: { id: string; name: string }
+  ) => {
     navigation.goBack()
   }
 
@@ -57,7 +61,11 @@ export const CategoriesScreen: React.FC<CategoriesScreenProps> = ({ route, navig
   }
 
   const onEditPress = () => {
-    console.log('onEditPress')
+
+    Promise.all([
+      ModalScreensHelper.openEditCategories(),
+      navigation.goBack()
+    ])
   }
 
   return (

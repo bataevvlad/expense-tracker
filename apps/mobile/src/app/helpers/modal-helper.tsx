@@ -3,6 +3,9 @@ import { ModalService, ModalServiceAsyncResult } from '@expense-tracker/services
 import { MODAL_KEYS, ModalAnimationType } from '@expense-tracker/shared-types'
 import { Button, StyleSheet, Text, View } from 'react-native'
 
+import { EditCategoriesScreen } from '../screens/EditCategoriesScreen'
+import { CategoryEdit } from '../screens/EditCategoryScreen'
+
 export class ModalScreensHelper {
   public static onCalendarPress(bottomInset: number): Promise<void | ModalServiceAsyncResult>{
     return ModalService.showComponentAsync(DetachedCalendar,
@@ -17,6 +20,28 @@ export class ModalScreensHelper {
       },
     )
   }
+
+  public static openEditCategories(): Promise<void | ModalServiceAsyncResult>{
+    return ModalService.showComponentAsync(EditCategoriesScreen,
+      {
+        useSafeArea: true,
+        desiredKey: MODAL_KEYS.EDIT_CATEGORIES,
+      },
+    )
+  }
+
+  public static openEditCategoryItem(): Promise<void | ModalServiceAsyncResult>{
+    return ModalService.showComponentAsync(CategoryEdit,
+      {
+        useSafeArea: true,
+        desiredKey: MODAL_KEYS.EDIT_CATEGORY,
+        modalComponentParams: {
+          isKeyboardUsed: true,
+        },
+      },
+    )
+  }
+
   public static dialog(
   ): Promise<ModalServiceAsyncResult>{
     return ModalService.showComponentAsync(Dialog,

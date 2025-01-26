@@ -1,20 +1,20 @@
-import { MultipleSwitcher } from '@expense-tracker/components-library'
 import { IconX, IconBackspace, IconCheck } from '@tabler/icons-react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ModalScreensHelper } from '../helpers/modal-helper'
+import { ExpenseSwitcher } from '../tempComponents/ExpenseSwitcher'
 
-const getSwitchItemsRegister = [
-  { label: 'Expense', value: 'Expense' },
-  { label: 'Income', value: 'Income' },
-]
+// const getSwitchItemsRegister = [
+//   { label: 'Expense', value: 'Expense' },
+//   { label: 'Income', value: 'Income' },
+// ]
 
 export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = false }: any) => {
   const { bottom } = useSafeAreaInsets()
   const [amount, setAmount] = useState<string>('0')
-  const [expenseIncome, setExpenseIncome] = useState<string | null>('Expense')
+  // const [expenseIncome, setExpenseIncome] = useState<string | null>('Expense')
   const buttonRef = useRef<TouchableOpacity>(null)
 
   const [keypadLayouts, setKeypadLayouts] = useState({})
@@ -62,7 +62,6 @@ export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = f
 
   const onCalendarPress = () => {
     ModalScreensHelper.onCalendarPress(bottom)
-    // ModalScreensHelper.dialog()
   }
 
   return (
@@ -72,7 +71,10 @@ export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = f
     >
       <View style={styles.header}>
         <TouchableOpacity
-          style={{ position: 'absolute', zIndex: 1, backgroundColor: '#efefef', borderRadius: 20, }}
+          style={{
+            backgroundColor: '#efefef',
+            borderRadius: 20,
+          }}
           onPress={handleClose}
         >
           <IconX
@@ -82,16 +84,30 @@ export const ExpenseInputScreen: React.FC = ({ navigation, route, isEmbedded = f
           />
         </TouchableOpacity>
 
-        {getSwitchItemsRegister && getSwitchItemsRegister.length > 1 && (
-          <View style={styles.switcherContainer}>
-            <MultipleSwitcher
-              activeTextStyle={styles.activeTextStyle}
-              items={getSwitchItemsRegister}
-              value={expenseIncome}
-              onChange={setExpenseIncome}
-            />
-          </View>
-        )}
+        <ExpenseSwitcher
+          containerStyle={{
+            justifyContent: 'flex-end'
+          }}
+          switcherContainerStyle={{
+            borderWidth: 0.8,
+            alignSelf: 'center',
+            width: '70%',
+            height: 42,
+            borderRadius: 20,
+          }}
+        />
+
+        <View
+          style={{
+            backgroundColor: 'transparent',
+          }}
+        >
+          <IconX
+            size={20}
+            color={'transparent'}
+            style={{ margin: 7 }}
+          />
+        </View>
       </View>
 
       <View>

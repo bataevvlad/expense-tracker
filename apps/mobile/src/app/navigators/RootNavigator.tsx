@@ -27,6 +27,7 @@ export const RootNavigator = () => {
         </RootStack.Group>
         <RootStack.Group
           screenOptions={{
+            gestureEnabled: false,
             headerShown: false,
             presentation: 'transparentModal',
             cardOverlayEnabled: false,
