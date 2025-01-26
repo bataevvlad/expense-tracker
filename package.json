@@ -17,11 +17,6 @@
     "lint:all": "nx run-many --target=lint --all",
     "gen:lib": "npx nx g @nx/react-native:lib libs/shared-lib",
     "changeset": "npx changeset",
-    "version-app": "npx changeset version",
-    "release:ci": "npm run version-app && git add . && git commit -m 'chore: bump version' && git push",
-    "prepare-release": "npx changeset status",
-    "ci:install": "npm ci",
-    "changeset-check": "git ls-files .changeset | grep . || (echo '❌ No changeset found! Please run npm run changeset.' && exit 1)",
     "postinstall": "husky install"
   },
   "private": true,
