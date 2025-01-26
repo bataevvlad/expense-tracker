@@ -1,4 +1,4 @@
-name: Version Bump Automation
+name: Version Bump After Merge
 
 on:
   push:
@@ -22,13 +22,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm run ci:install
+        run: npm ci
 
-      - name: Apply version bump and push
+      - name: Apply version bump and push changes
         run: |
           npm run version-app
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions@github.com'
           git add .
-          git commit -m "chore: version bump"
+          git commit -m "chore: version bump" || echo "No changes to commit"
           git push
