@@ -32,9 +32,7 @@ const categories: Category[] = [
   { id: '12', name: 'Gifts', icon: '🎁', color: '#FF6482' },
 ]
 
-export const EditCategoriesScreen: React.FC<CategoryListProps> = ({
-  // onSelectCategory
-}) => {
+export const EditCategoriesScreen: React.FC<CategoryListProps> = () => {
   return (
     <SafeAreaView
       style={styles.container}

@@ -19,4 +19,4 @@ module.exports = {
     ),
   },
   coverageDirectory: '../../coverage/libs/shared-utils',
-};
+}
