@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { RootNavigator } from '../navigators/RootNavigator'
 
 export const MainProvider = () => {
+  //test
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
