@@ -21,6 +21,11 @@ module.exports = function (api) {
     presets: [
       ['module:@react-native/babel-preset', { useTransformReactJSX: true }],
     ],
-    plugins: ['react-native-reanimated/plugin'],
+    plugins: [
+      ['transform-remove-console', { exclude: ['error', 'warn'] }],
+      ['react-remove-properties', { properties: ['data-testid'] }],
+      'lodash',
+      'react-native-reanimated/plugin',
+    ],
   };
 };
