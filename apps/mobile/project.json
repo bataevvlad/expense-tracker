@@ -6,6 +6,17 @@
   "tags": [],
   "// targets": "to see all targets run: nx show project mobile --web",
   "targets": {
+    "bundle-ios": {
+      "executor": "@nx/react-native:bundle",
+      "outputs": ["{projectRoot}/build"],
+      "options": {
+        "dev": false,
+        "minify": true,
+        "entryFile": "src/main.tsx",
+        "platform": "ios",
+        "bundleOutput": "dist/apps/mobile/ios/main.jsbundle"
+      }
+    },
     "pod-install": {
       "executor": "nx:run-commands",
       "options": {
