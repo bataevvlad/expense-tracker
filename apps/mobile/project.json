@@ -28,6 +28,13 @@
       "options": {
         "device": "iPhoneVlad"
       }
+    },
+    "docker-build": {
+      "executor": "my-executors:docker-build",
+      "options": {
+        "imageName": "mobile-app",
+        "dockerFile": "apps/mobile/Dockerfile"
+      }
     }
   }
 }

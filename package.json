@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "license": "MIT",
   "scripts": {
-    "mobile:start": "nx start mobile --reset-cache",
+    "start": "nx start mobile --reset-cache",
     "mobile:run:android": "nx run-android mobile",
     "mobile:run:ios": "nx run-ios mobile --simulator=\"iPhone 16 Pro\"",
     "mobile:device:debug": "nx run-ios mobile --device=\"iPhoneVlad\" --configuration Debug",
@@ -17,7 +17,8 @@
     "lint:all": "nx run-many --target=lint --all",
     "gen:lib": "npx nx g @nx/react-native:lib libs/shared-lib",
     "changeset": "npx changeset",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "jscodeshift": "jscodeshift -t renameOldFunction.js src"
   },
   "private": true,
   "dependencies": {
@@ -42,18 +43,20 @@
     "react-native-screens": "^4.0.0"
   },
   "devDependencies": {
+    "my-executors": "file:tools/my-executors",
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
     "@changesets/cli": "^2.27.12",
     "@eslint/js": "^9.8.0",
-    "@nx/devkit": "20.0.12",
+    "@nx/devkit": "20.4.4",
     "@nx/eslint": "20.0.12",
     "@nx/eslint-plugin": "20.0.12",
     "@nx/express": "^20.0.12",
-    "@nx/jest": "20.0.12",
-    "@nx/js": "20.0.12",
+    "@nx/jest": "20.4.4",
+    "@nx/js": "20.4.4",
     "@nx/node": "20.0.12",
     "@nx/playwright": "20.0.12",
+    "@nx/plugin": "^20.4.4",
     "@nx/react-native": "20.0.12",
     "@nx/vite": "20.0.12",
     "@nx/web": "20.0.12",
@@ -66,6 +69,7 @@
     "@react-native/metro-config": "^0.74.83",
     "@svgr/webpack": "^8.0.1",
     "@swc-node/register": "~1.9.1",
+    "@swc/cli": "~0.3.12",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@testing-library/jest-native": "~5.4.3",

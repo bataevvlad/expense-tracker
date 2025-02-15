@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "type": "object",
+  "properties": {
+    "imageName": {
+      "type": "string",
+      "description": "Docker image tag"
+    },
+    "dockerfile": {
+      "type": "string",
+      "description": "Path to Dockerfile",
+      "default": "Dockerfile"
+    },
+    "buildArgs": {
+      "type": "object",
+      "description": "Additional build arguments"
+    }
+  },
+  "required": ["imageName"]
+}
